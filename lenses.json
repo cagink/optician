@@ -1,0 +1,21 @@
+[
+  {
+    "brand": "Acuvue",
+    "model": "Oasys",
+    "base_curves": [
+      8.4,
+      8.8
+    ],
+    "diameters": [
+      14.0
+    ],
+    "sphere_range": "-12.00 to +8.00",
+    "cylinder_range": "-0.75 to -2.25",
+    "axis": "0\u00b0 to 180\u00b0",
+    "type": "Monthly",
+    "material": "Senofilcon A",
+    "water_content": "38%",
+    "manufacturer": "Johnson & Johnson",
+    "availability_turkey": true
+  }
+]
