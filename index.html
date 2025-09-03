@@ -9,12 +9,12 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div id="root"></div>
     <script type="text/babel">
-      const { BrowserRouter, Routes, Route, Link } = ReactRouterDOM;
+      const { HashRouter, Routes, Route, Link } = ReactRouterDOM;
+
       function Navbar() {
         return (
           <nav className="bg-blue-600 text-white px-6 py-4 flex justify-between">
@@ -28,6 +28,7 @@
           </nav>
         );
       }
+
       function Home() {
         return (
           <div className="p-6">
@@ -41,11 +42,13 @@
           </div>
         );
       }
+
       function Calculator() {
         const [sph, setSph] = React.useState("");
         const [cyl, setCyl] = React.useState("");
         const [axis, setAxis] = React.useState("");
         const [result, setResult] = React.useState(null);
+
         const transpose = () => {
           let s = parseFloat(sph) || 0;
           let c = parseFloat(cyl) || 0;
@@ -56,6 +59,7 @@
           let newA = (a + 90) % 180;
           setResult(`SPH: ${newS.toFixed(2)}, CYL: ${newC.toFixed(2)}, AXIS: ${newA}`);
         };
+
         return (
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Prescription Transposition</h2>
@@ -69,16 +73,25 @@
           </div>
         );
       }
+
       function Database() {
         const [lenses, setLenses] = React.useState([]);
         const [query, setQuery] = React.useState("");
         const [selected, setSelected] = React.useState([]);
-        React.useEffect(() => { fetch("lenses.json").then(res => res.json()).then(data => setLenses(data)); }, []);
+
+        React.useEffect(() => {
+          fetch("lenses.json").then(res => res.json()).then(data => setLenses(data));
+        }, []);
+
         const results = lenses.filter(l => (l.brand + l.model + l.type + l.material + l.manufacturer).toLowerCase().includes(query.toLowerCase()));
         const toggleSelect = (lens) => {
-          if (selected.find(s => s.model === lens.model)) { setSelected(selected.filter(s => s.model !== lens.model)); }
-          else if (selected.length < 2) { setSelected([...selected, lens]); }
+          if (selected.find(s => s.model === lens.model)) {
+            setSelected(selected.filter(s => s.model !== lens.model));
+          } else if (selected.length < 2) {
+            setSelected([...selected, lens]);
+          }
         };
+
         return (
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Contact Lens Database</h2>
@@ -120,6 +133,7 @@
           </div>
         );
       }
+
       function ColorBlindnessTest() {
         const plates = [
           { src: "images/ishihara/plate1.png", answer: "12" },
@@ -130,25 +144,33 @@
           { src: "images/ishihara/plate6.png", answer: "45" },
           { src: "images/ishihara/plate7.png", answer: "7" }
         ];
+
         const [step, setStep] = React.useState(0);
         const [answers, setAnswers] = React.useState([]);
         const [timer, setTimer] = React.useState(10);
+
         React.useEffect(() => {
           if (step < plates.length) {
             setTimer(10);
             const interval = setInterval(() => {
               setTimer(t => {
-                if (t <= 1) { clearInterval(interval); handleAnswer("No answer"); return 0; }
+                if (t <= 1) {
+                  clearInterval(interval);
+                  handleAnswer("No answer");
+                  return 0;
+                }
                 return t - 1;
               });
             }, 1000);
             return () => clearInterval(interval);
           }
         }, [step]);
+
         const handleAnswer = (ans) => {
           setAnswers([...answers, { plate: step+1, given: ans, correct: plates[step].answer }]);
           setStep(step+1);
         };
+
         if (step >= plates.length) {
           return (
             <div className="p-6">
@@ -163,6 +185,7 @@
             </div>
           );
         }
+
         return (
           <div className="p-6 text-center">
             <h2 className="text-2xl font-bold mb-4">Plate {step+1}</h2>
@@ -178,9 +201,10 @@
           </div>
         );
       }
+
       function App() {
         return (
-          <BrowserRouter>
+          <HashRouter>
             <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />
@@ -188,9 +212,10 @@
               <Route path="/database" element={<Database />} />
               <Route path="/test" element={<ColorBlindnessTest />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         );
       }
+
       ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
   </body>
