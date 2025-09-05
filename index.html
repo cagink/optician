@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧭 OptiTools Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>section { display:none; } section.active { display:block; }</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <nav class="bg-blue-600 text-white p-4 flex justify-between">
+    <span class="font-bold">OptiTools Hub</span>
+    <div class="space-x-4">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('calculator')">Calculator</button>
+      <button onclick="showPage('database')">Database</button>
+      <button onclick="showPage('test')">Color Test</button>
+    </div>
+  </nav>
+
+  <section id="home" class="active p-6">
+    <h1 class="text-3xl font-bold mb-4">Welcome to OptiTools Hub</h1>
+    <p>Select a tool from the navigation above.</p>
+  </section>
+
+  <section id="calculator" class="p-6">
+    <h2 class="text-2xl font-bold mb-4">Prescription Transposition</h2>
+    <input id="sph" placeholder="Sphere" class="border p-2 mb-2 block" />
+    <input id="cyl" placeholder="Cylinder" class="border p-2 mb-2 block" />
+    <input id="axis" placeholder="Axis" class="border p-2 mb-2 block" />
+    <button onclick="transpose()" class="bg-blue-600 text-white px-4 py-2 rounded">Transpose</button>
+    <div id="result" class="mt-4 p-4 bg-gray-100 rounded"></div>
+  </section>
+
+  <section id="database" class="p-6">
+    <h2 class="text-2xl font-bold mb-4">Contact Lens Database</h2>
+    <input id="search" placeholder="Search lenses..." class="border p-2 mb-4 w-full"/>
+    <div id="lens-list" class="grid md:grid-cols-2 gap-4"></div>
+  </section>
+
+  <section id="test" class="p-6 text-center">
+    <h2 class="text-2xl font-bold mb-4">Color Blindness Test</h2>
+    <img id="plate" class="mx-auto mb-4 max-w-xs border rounded"/>
+    <div id="answers" class="space-x-2"></div>
+    <p id="timer" class="mt-2"></p>
+    <div id="results" class="mt-6"></div>
+  </section>
+
+  <script>
+    function showPage(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function transpose() {
+      let s = parseFloat(document.getElementById('sph').value)||0;
+      let c = parseFloat(document.getElementById('cyl').value)||0;
+      let a = parseInt(document.getElementById('axis').value)||0;
+      if (!c) { document.getElementById('result').innerText='No cylinder to transpose.'; return; }
+      let newS = s+c; let newC=-c; let newA=(a+90)%180;
+      document.getElementById('result').innerText=`SPH: ${newS.toFixed(2)}, CYL: ${newC.toFixed(2)}, AXIS: ${newA}`;
+    }
+
+    // Database
+    fetch('lenses.json').then(r=>r.json()).then(data=>{
+      const list=document.getElementById('lens-list');
+      const search=document.getElementById('search');
+      function render(){
+        list.innerHTML='';
+        data.filter(l=> (l.brand+l.model+l.type+l.material).toLowerCase().includes(search.value.toLowerCase()))
+        .forEach(l=>{
+          const d=document.createElement('div');
+          d.className='border p-4 rounded bg-white shadow';
+          d.innerHTML=`<h3 class='font-bold'>${l.brand} ${l.model}</h3>
+          <p>${l.type} – ${l.material}</p>
+          <p>BC: ${l.base_curves.join(', ')} / DIA: ${l.diameters.join(', ')}</p>
+          <p>Water: ${l.water_content} – ${l.manufacturer}</p>`;
+          list.appendChild(d);
+        });
+      }
+      search.addEventListener('input',render); render();
+    });
+
+    // Color Test
+    const plates=[
+      {src:'images/ishihara/plate1.png', answer:'12'},
+      {src:'images/ishihara/plate2.png', answer:'8'},
+      {src:'images/ishihara/plate3.png', answer:'29'},
+      {src:'images/ishihara/plate4.png', answer:'5'},
+      {src:'images/ishihara/plate5.png', answer:'6'},
+      {src:'images/ishihara/plate6.png', answer:'45'},
+      {src:'images/ishihara/plate7.png', answer:'7'}
+    ];
+    let step=0,answers=[];
+    function loadPlate(){
+      if(step>=plates.length){ showResults(); return; }
+      const p=plates[step];
+      document.getElementById('plate').src=p.src;
+      const ansDiv=document.getElementById('answers');
+      ansDiv.innerHTML='';
+      [p.answer,'No answer'].forEach(opt=>{
+        const b=document.createElement('button');
+        b.className='px-4 py-2 bg-blue-500 text-white rounded';
+        b.innerText=opt;
+        b.onclick=()=>{answers.push({plate:step+1,given:opt,correct:p.answer}); step++; loadPlate();};
+        ansDiv.appendChild(b);
+      });
+    }
+    function showResults(){
+      document.getElementById('plate').style.display='none';
+      document.getElementById('answers').style.display='none';
+      const r=document.getElementById('results');
+      r.innerHTML='<h3 class="text-xl font-bold mb-2">Results</h3>';
+      answers.forEach(a=>{
+        r.innerHTML+=`<p>Plate ${a.plate}: You said ${a.given}, correct ${a.correct}</p>`;
+      });
+    }
+    loadPlate();
+  </script>
+</body>
+</html>

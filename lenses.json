@@ -1,0 +1,22 @@
+[
+  {
+    "brand": "Acuvue",
+    "model": "Oasys",
+    "type": "Monthly",
+    "material": "Senofilcon A",
+    "manufacturer": "Johnson & Johnson",
+    "base_curves": [8.4, 8.8],
+    "diameters": [14.0],
+    "water_content": "38%"
+  },
+  {
+    "brand": "Biofinity",
+    "model": "Toric",
+    "type": "Monthly",
+    "material": "Comfilcon A",
+    "manufacturer": "CooperVision",
+    "base_curves": [8.6],
+    "diameters": [14.5],
+    "water_content": "48%"
+  }
+]
